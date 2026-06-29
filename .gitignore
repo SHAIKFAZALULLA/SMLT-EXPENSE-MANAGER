@@ -1,0 +1,47 @@
+# ==========================================
+# SMLT Expense Manager
+# ==========================================
+
+# Node Modules
+node_modules/
+
+# Logs
+*.log
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Environment Variables
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Backup Files
+*.bak
+*.tmp
+
+# Build
+dist/
+build/
+
+# Cache
+.cache/
+
+# Excel Exports
+SMLT-EXPENSES-*.xlsx
+
+# JSON Backups
+SMLT-BACKUP-*.json
