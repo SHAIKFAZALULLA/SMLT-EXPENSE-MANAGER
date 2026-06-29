@@ -1,27 +1,27 @@
 // ======================================================
-// SMLT Expense Manager v3.1
-// export.js
+// SMLT Expenses Manager v3.1
+// Professional Excel Export
 // ======================================================
 
-import { getAllTrips, calculateTotals } from "./firestore.js";
+import { getAllTrips } from "./firestore.js";
 
 import { formatDate } from "./utils.js";
 
 document
-.getElementById("exportExcel")
-.addEventListener("click", exportExcel);
+    .getElementById("exportExcel")
+    .addEventListener("click", exportExcel);
 
 // ======================================================
-// EXPORT EXCEL
+// EXPORT
 // ======================================================
 
-async function exportExcel(){
+async function exportExcel() {
 
-    try{
+    try {
 
         const trips = await getAllTrips();
 
-        if(trips.length===0){
+        if (trips.length === 0) {
 
             alert("No trips available.");
 
@@ -31,27 +31,13 @@ async function exportExcel(){
 
         const workbook = XLSX.utils.book_new();
 
-        // =============================================
-        // TRIPS SHEET
-        // =============================================
+        const data = [];
 
-        const rows=[];
+        // ============================================
+        // HEADER ROW
+        // ============================================
 
-        rows.push(["SMLT EXPENSES MANAGER"]);
-
-        rows.push([]);
-
-        rows.push([
-
-            "Export Date",
-
-            new Date().toLocaleString()
-
-        ]);
-
-        rows.push([]);
-
-        rows.push([
+        data.push([
 
             "S.No",
 
@@ -85,11 +71,15 @@ async function exportExcel(){
 
         ]);
 
-        trips.forEach((trip,index)=>{
+        // ============================================
+        // TRIPS
+        // ============================================
 
-            rows.push([
+        trips.forEach((trip, index) => {
 
-                index+1,
+            data.push([
+
+                index + 1,
 
                 formatDate(trip.date),
 
@@ -97,105 +87,82 @@ async function exportExcel(){
 
                 trip.unloading,
 
-                trip.tonnage,
+                Number(trip.tonnage),
 
-                trip.perTon,
+                Number(trip.perTon),
 
-                trip.income,
+                Number(trip.income),
 
-                trip.fuel,
+                Number(trip.fuel),
 
-                trip.adBlue,
+                Number(trip.adBlue),
 
-                trip.toll,
+                Number(trip.toll),
 
-                trip.driverAdvance,
+                Number(trip.driverAdvance),
 
-                trip.driverSalary,
+                Number(trip.driverSalary),
 
-                trip.otherExpense,
+                Number(trip.otherExpense),
 
-                trip.expense,
+                Number(trip.expense),
 
-                trip.profit
+                Number(trip.profit)
 
             ]);
 
         });
 
-        const totals = calculateTotals(trips);
+        // ============================================
+        // CREATE SHEET
+        // ============================================
 
-        rows.push([]);
+        const sheet = XLSX.utils.aoa_to_sheet(data);
 
-        rows.push([
+        // ============================================
+        // AUTO FILTER
+        // ============================================
 
-            "",
+        sheet["!autofilter"] = {
+            ref: "A1:O1"
+        };
 
-            "",
+        // ============================================
+        // FREEZE HEADER
+        // ============================================
 
-            "",
+        sheet["!freeze"] = {
+            xSplit: 0,
+            ySplit: 1
+        };
 
-            "",
+        // ============================================
+        // COLUMN WIDTHS
+        // ============================================
 
-            "",
+        sheet["!cols"] = [
 
-            "TOTAL",
-
-            totals.income,
-
-            totals.fuel,
-
-            totals.adBlue,
-
-            totals.toll,
-
-            totals.driverAdvance,
-
-            totals.driverSalary,
-
-            totals.otherExpense,
-
-            totals.expense,
-
-            totals.profit
-
-        ]);
-
-        const sheet = XLSX.utils.aoa_to_sheet(rows);
-
-        sheet["!cols"]=[
-
-            {wch:8},
-
-            {wch:15},
-
-            {wch:25},
-
-            {wch:25},
-
-            {wch:12},
-
-            {wch:12},
-
-            {wch:15},
-
-            {wch:12},
-
-            {wch:12},
-
-            {wch:12},
-
-            {wch:15},
-
-            {wch:15},
-
-            {wch:18},
-
-            {wch:18},
-
-            {wch:18}
+            { wch: 8 },   // S.No
+            { wch: 15 },  // Date
+            { wch: 28 },  // Loading
+            { wch: 28 },  // Unloading
+            { wch: 12 },  // Tonnage
+            { wch: 12 },  // Per Ton
+            { wch: 15 },  // Income
+            { wch: 12 },  // Fuel
+            { wch: 12 },  // AD Blue
+            { wch: 12 },  // Toll
+            { wch: 15 },  // Driver Adv
+            { wch: 15 },  // Driver Salary
+            { wch: 18 },  // Other Expense
+            { wch: 18 },  // Total Expense
+            { wch: 15 }   // Profit
 
         ];
+
+        // ============================================
+        // APPEND SHEET
+        // ============================================
 
         XLSX.utils.book_append_sheet(
 
@@ -207,85 +174,29 @@ async function exportExcel(){
 
         );
 
-        // =============================================
-        // SUMMARY SHEET
-        // =============================================
-
-        const summary=[];
-
-        summary.push(["SMLT Expenses Summary"]);
-
-        summary.push([]);
-
-        summary.push(["Total Trips", totals.count]);
-
-        summary.push(["Total Income", totals.income]);
-
-        summary.push(["Fuel", totals.fuel]);
-
-        summary.push(["AD Blue", totals.adBlue]);
-
-        summary.push(["Toll", totals.toll]);
-
-        summary.push(["Driver Advance", totals.driverAdvance]);
-
-        summary.push(["Driver Salary", totals.driverSalary]);
-
-        summary.push(["Other Expense", totals.otherExpense]);
-
-        summary.push(["Total Expense", totals.expense]);
-
-        summary.push(["Total Profit", totals.profit]);
-
-        const summarySheet = XLSX.utils.aoa_to_sheet(summary);
-
-        summarySheet["!cols"]=[
-
-            {wch:30},
-
-            {wch:20}
-
-        ];
-
-        XLSX.utils.book_append_sheet(
-
-            workbook,
-
-            summarySheet,
-
-            "Summary"
-
-        );
-
-        // =============================================
+        // ============================================
         // FILE NAME
-        // =============================================
+        // ============================================
 
         const today = new Date();
 
-        const fileDate =
+        const dd = String(today.getDate()).padStart(2, "0");
 
-            String(today.getDate()).padStart(2,"0")
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
 
-            + "-"
-
-            + String(today.getMonth()+1).padStart(2,"0")
-
-            + "-"
-
-            + today.getFullYear();
+        const yyyy = today.getFullYear();
 
         XLSX.writeFile(
 
             workbook,
 
-            `SMLT-EXPENSES-${fileDate}.xlsx`
+            `SMLT-EXPENSES-${dd}-${mm}-${yyyy}.xlsx`
 
         );
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.error(error);
 
@@ -293,4 +204,4 @@ async function exportExcel(){
 
     }
 
-}
+}        
