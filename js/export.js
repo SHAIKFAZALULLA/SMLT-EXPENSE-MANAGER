@@ -1,5 +1,5 @@
 // ======================================================
-// SMLT Expenses Manager v3.1
+// SMLT Expense Manager v3.1
 // Professional Excel Export
 // ======================================================
 
@@ -190,7 +190,7 @@ async function exportExcel() {
 
             workbook,
 
-            `SMLT-EXPENSES-${dd}-${mm}-${yyyy}.xlsx`
+            `SMLT-EXPENSE-${dd}-${mm}-${yyyy}.xlsx`
 
         );
 
